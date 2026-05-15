@@ -19,7 +19,11 @@ export const products: Product[] = [
     price: 1690,
     category: 'electronics',
     condition: 'like-new',
-    imageUrls: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u1',
     sellerName: 'Mina Lee',
     sellerAvatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=256&q=80',
@@ -36,7 +40,10 @@ export const products: Product[] = [
     price: 410,
     category: 'furniture',
     condition: 'good',
-    imageUrls: ['https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u2',
     sellerName: 'Noah Carter',
     location: 'Oakland, CA',
@@ -51,7 +58,11 @@ export const products: Product[] = [
     price: 1880,
     category: 'electronics',
     condition: 'good',
-    imageUrls: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1495121553079-4c61bcce1894?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u3',
     sellerName: 'Luca Evans',
     location: 'San Jose, CA',
@@ -67,7 +78,10 @@ export const products: Product[] = [
     price: 320,
     category: 'home',
     condition: 'fair',
-    imageUrls: ['https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u4',
     sellerName: 'Priya Rao',
     location: 'Berkeley, CA',
@@ -82,7 +96,10 @@ export const products: Product[] = [
     price: 2450,
     category: 'collectibles',
     condition: 'good',
-    imageUrls: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u5',
     sellerName: 'Theo James',
     location: 'San Francisco, CA',
@@ -98,7 +115,10 @@ export const products: Product[] = [
     price: 980,
     category: 'sports',
     condition: 'good',
-    imageUrls: ['https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1200&q=80'],
+    imageUrls: [
+      'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=1200&q=80'
+    ],
     sellerId: 'u6',
     sellerName: 'Iris Chen',
     location: 'Daly City, CA',

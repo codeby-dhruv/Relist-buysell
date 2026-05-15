@@ -117,9 +117,9 @@ export function ProductForm() {
             <span className="rounded-full bg-black px-3 py-1 text-xs font-normal text-white dark:bg-white dark:text-black">{progress}</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex snap-x gap-2 overflow-x-auto pb-1">
             {images.map((image, index) => (
-              <div key={image.url} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-slate-200">
+              <div key={image.url} className="relative aspect-[4/5] w-28 shrink-0 snap-start overflow-hidden rounded-2xl bg-slate-200">
                 <img src={image.url} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
                 {index === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-normal">Cover</span>}
                 <button type="button" onClick={() => removeImage(image.url)} className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-black/65 text-white">
@@ -129,7 +129,7 @@ export function ProductForm() {
             ))}
 
             {canUploadMore && (
-              <label className="grid aspect-[4/5] cursor-pointer place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center transition active:scale-[0.98] dark:border-white/15 dark:bg-black">
+              <label className="grid aspect-[4/5] w-28 shrink-0 cursor-pointer snap-start place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center transition active:scale-[0.98] dark:border-white/15 dark:bg-black">
                 <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleImages(event.target.files)} />
                 <span>
                   <ImagePlus className="mx-auto size-8 text-slate-400" />

@@ -1,4 +1,4 @@
-import { Heart, MapPin, Star } from 'lucide-react';
+import { Bookmark, MapPin, Share2, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@components/ui/Button';
@@ -20,12 +20,24 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <Link to={`/products/${product.id}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-slate-100">
-          <img
-            src={product.imageUrls[0]}
-            alt={product.title}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
+          <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
+            {product.imageUrls.map((imageUrl, index) => (
+              <img
+                key={imageUrl}
+                src={imageUrl}
+                alt={`${product.title} ${index + 1}`}
+                className="h-full w-full shrink-0 snap-center object-cover transition duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+            ))}
+          </div>
+          {product.imageUrls.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-full bg-black/35 px-2 py-1 backdrop-blur">
+              {product.imageUrls.map((imageUrl) => (
+                <span key={imageUrl} className="size-1.5 rounded-full bg-white/85" />
+              ))}
+            </div>
+          )}
           {product.isFeatured && (
             <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-normal text-ink backdrop-blur">
               Featured
@@ -46,7 +58,14 @@ export function ProductCard({ product }: { product: Product }) {
             variant="secondary"
             className="size-11 shrink-0 rounded-full p-0"
             onClick={() => toggleWishlist(product.id)}
-            icon={<Heart className={saved ? 'size-5 fill-rose-500 text-rose-500' : 'size-5'} />}
+            icon={<Bookmark className={saved ? 'size-5 fill-current' : 'size-5'} />}
+          />
+          <Button
+            aria-label="Share listing"
+            variant="secondary"
+            className="size-11 shrink-0 rounded-full p-0"
+            onClick={() => void shareProduct(product)}
+            icon={<Share2 className="size-5" />}
           />
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -62,6 +81,20 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
     </motion.article>
   );
+}
+
+async function shareProduct(product: Product) {
+  const url = `${window.location.origin}/products/${product.id}`;
+  const text = `${product.title} - ${formatPrice(product.price)}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: product.title, text, url });
+    } catch {
+      // User may cancel the native share sheet.
+    }
+    return;
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, '_blank', 'noreferrer');
 }
 
 
