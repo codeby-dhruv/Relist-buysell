@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -23,6 +23,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
 }
 
 button,
@@ -54,7 +55,12 @@ textarea {
     @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 dark:border-white/10 dark:bg-slate-900 dark:text-white;
   }
 
-  .insta-ring {
-    @apply bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] p-[2px];
+  .market-ring {
+    @apply bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 p-[2px];
+  }
+
+  .inter-copy {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   }
 }
+

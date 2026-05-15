@@ -8,10 +8,10 @@ export function SellPage() {
 
   return (
     <div className="space-y-5 px-4 pt-4 md:px-0 md:pt-0">
-      <div className="rounded-[30px] bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] p-5 text-white shadow-sm md:p-7">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/75">Creator studio</p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">{t.createListing}</h1>
-        <p className="mt-2 max-w-2xl text-sm font-semibold text-white/78">
+      <div className="rounded-[30px] bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 p-5 text-white shadow-sm md:p-7">
+        <p className="text-xs font-normal text-white/75">Creator studio</p>
+        <h1 className="inter-copy mt-2 text-3xl font-semibold sm:text-5xl">{t.createListing}</h1>
+        <p className="inter-copy mt-2 max-w-2xl text-sm font-normal text-white/78">
           Add clean photos, honest details, and pricing that helps buyers trust your listing instantly.
         </p>
       </div>
@@ -19,3 +19,5 @@ export function SellPage() {
     </div>
   );
 }
+
+

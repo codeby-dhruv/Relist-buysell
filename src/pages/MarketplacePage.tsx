@@ -25,7 +25,7 @@ export function MarketplacePage() {
     <div className="bg-white dark:bg-black md:bg-transparent md:dark:bg-transparent">
       <section className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/96 px-4 py-3 backdrop-blur-2xl dark:border-white/10 dark:bg-black/96 md:hidden">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-[28px] font-black tracking-tight">
+          <Link to="/" className="text-[28px] font-black">
             Relist
           </Link>
           <div className="flex items-center gap-4">
@@ -51,21 +51,21 @@ export function MarketplacePage() {
       <section className="border-b border-slate-100 bg-white py-3 dark:border-white/10 dark:bg-black md:hidden">
         <div className="flex gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
           <Link to="/categories" className="w-[72px] shrink-0 text-center">
-            <span className="mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] p-[2px]">
+            <span className="mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 p-[2px]">
               <span className="grid size-full place-items-center rounded-full bg-white dark:bg-black">
                 <Camera className="size-6" />
               </span>
             </span>
-            <span className="mt-1 block truncate text-xs font-semibold">View all</span>
+            <span className="mt-1 block truncate text-xs font-normal">View all</span>
           </Link>
           {categories.slice(0, 16).map((item) => (
             <button key={item.id} onClick={() => setCategory(item.id)} className="w-[72px] shrink-0 text-center">
-              <span className="mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] p-[2px]">
+              <span className="mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 p-[2px]">
                 <span className="grid size-full place-items-center rounded-full bg-white dark:bg-black">
                   <item.icon className="size-6" />
                 </span>
               </span>
-              <span className="mt-1 block truncate text-xs font-semibold">{item.label}</span>
+              <span className="mt-1 block truncate text-xs font-normal">{item.label}</span>
             </button>
           ))}
         </div>
@@ -89,8 +89,8 @@ export function MarketplacePage() {
         <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-950">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-[#d62976]">National super app</p>
-              <h1 className="mt-2 text-4xl font-black tracking-tight">Marketplace feed for everything local.</h1>
+              <p className="text-sm font-extrabold text-sky-600">National super app</p>
+              <h1 className="inter-copy mt-2 text-4xl font-semibold">Marketplace feed for everything local.</h1>
               <p className="mt-3 max-w-2xl text-slate-500">Products, vehicles, property, rentals, services, jobs, and local professionals in one clean discovery experience.</p>
             </div>
             <Link to="/categories" className="rounded-2xl bg-[#0f0f12] px-5 py-3 text-sm font-extrabold text-white dark:bg-white dark:text-black">
@@ -105,7 +105,7 @@ export function MarketplacePage() {
               <span className={`mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-tr ${item.accent} text-white`}>
                 <item.icon className="size-7" />
               </span>
-              <span className="mt-2 block truncate text-xs font-bold">{item.label}</span>
+              <span className="mt-2 block truncate text-xs font-normal">{item.label}</span>
             </button>
           ))}
         </section>
@@ -128,7 +128,7 @@ function InstagramListing({ product }: { product: Product }) {
         <div className="flex min-w-0 items-center gap-3">
           <img src={product.sellerAvatar ?? product.imageUrls[0]} alt="" className="size-10 rounded-full object-cover" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-extrabold">{product.sellerName}</p>
+            <p className="inter-copy truncate text-sm font-medium">{product.sellerName}</p>
             <p className="flex items-center gap-1 truncate text-xs text-slate-500">
               <MapPin className="size-3" /> {product.location}
             </p>
@@ -158,16 +158,18 @@ function InstagramListing({ product }: { product: Product }) {
           </div>
           <Bookmark className={saved ? 'size-6 fill-current' : 'size-6'} />
         </div>
-        <p className="text-sm font-extrabold">{product.saves.toLocaleString()} saves</p>
+        <p className="inter-copy text-sm font-medium">{product.saves.toLocaleString()} saves</p>
         <p className="text-sm">
-          <Link to={`/products/${product.id}`} className="font-extrabold">
+          <Link to={`/products/${product.id}`} className="inter-copy font-medium">
             {product.title}
           </Link>{' '}
-          <span className="font-black text-[#d62976]">{formatPrice(product.price)}</span>
+              <span className="inter-copy font-semibold text-sky-600">{formatPrice(product.price)}</span>
         </p>
         <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{product.description}</p>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{product.category}</p>
+        <p className="text-xs font-normal text-slate-400">{product.category}</p>
       </div>
     </article>
   );
 }
+
+

@@ -29,11 +29,11 @@ export function MessagesPage() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2">
                     <span className="truncate font-extrabold">{chat.participantName}</span>
-                    <span className="shrink-0 text-[11px] font-bold text-slate-400">Now</span>
+                    <span className="shrink-0 text-[11px] font-normal text-slate-400">Now</span>
                   </span>
                   <span className="mt-1 block truncate text-sm text-slate-500">{chat.lastMessage}</span>
                 </span>
-                {chat.unreadCount > 0 && <span className="grid size-6 place-items-center rounded-full bg-[#5b2ee5] text-xs font-bold text-white">{chat.unreadCount}</span>}
+                {chat.unreadCount > 0 && <span className="grid size-6 place-items-center rounded-full bg-[#5b2ee5] text-xs font-normal text-white">{chat.unreadCount}</span>}
               </button>
             ))}
           </div>
@@ -45,7 +45,7 @@ export function MessagesPage() {
               <img src={chats[0].participantAvatar} alt="" className="size-11 rounded-2xl object-cover" />
               <div>
                 <p className="font-extrabold">Mina Lee</p>
-                <p className="text-xs font-semibold text-emerald-500">Online · MacBook Pro 14</p>
+                <p className="text-xs font-normal text-emerald-500">Online · MacBook Pro 14</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -83,7 +83,7 @@ export function MessagesPage() {
 }
 
 function DayPill({ children }: { children: string }) {
-  return <p className="mx-auto w-fit rounded-full bg-white px-3 py-1 text-[11px] font-extrabold text-slate-400 shadow-sm dark:bg-white/10">{children}</p>;
+  return <p className="mx-auto w-fit rounded-full bg-white px-3 py-1 text-[11px] font-normal text-slate-400 shadow-sm dark:bg-white/10">{children}</p>;
 }
 
 function Bubble({ children, mine }: { children: string; mine?: boolean }) {

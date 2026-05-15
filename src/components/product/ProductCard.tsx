@@ -27,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
             loading="lazy"
           />
           {product.isFeatured && (
-            <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-ink backdrop-blur">
+            <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-normal text-ink backdrop-blur">
               Featured
             </span>
           )}
@@ -36,10 +36,10 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <Link to={`/products/${product.id}`} className="line-clamp-1 font-bold text-ink dark:text-white">
+            <Link to={`/products/${product.id}`} className="inter-copy line-clamp-1 font-medium text-ink dark:text-white">
               {product.title}
             </Link>
-            <p className="mt-1 text-xl font-extrabold tracking-tight">{formatPrice(product.price)}</p>
+            <p className="inter-copy mt-1 text-xl font-semibold">{formatPrice(product.price)}</p>
           </div>
           <Button
             aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
@@ -63,3 +63,5 @@ export function ProductCard({ product }: { product: Product }) {
     </motion.article>
   );
 }
+
+

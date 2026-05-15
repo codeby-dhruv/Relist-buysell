@@ -26,7 +26,7 @@ export function AuthPage() {
   return (
     <div className="mx-auto grid max-w-5xl overflow-hidden rounded-[32px] bg-white shadow-soft dark:bg-slate-950 lg:grid-cols-2">
       <section className="hidden bg-ink p-10 text-white dark:bg-white dark:text-ink lg:block">
-        <h1 className="text-4xl font-extrabold tracking-tight">Your trusted local marketplace account.</h1>
+        <h1 className="text-4xl font-extrabold">Your trusted local marketplace account.</h1>
         <p className="mt-4 leading-7 text-white/68 dark:text-slate-600">Save listings, message sellers, manage inventory, and build a reputation buyers can trust.</p>
       </section>
       <form onSubmit={handleSubmit} className="space-y-5 p-6 sm:p-10">

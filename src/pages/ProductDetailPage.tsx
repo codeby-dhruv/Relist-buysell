@@ -5,6 +5,9 @@ import { Skeleton } from '@components/ui/Skeleton';
 import { useProduct } from '@hooks/useProducts';
 import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
+import type { Product } from '@/types/models';
+
+const fallbackWhatsappNumber = '919876543210';
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -26,13 +29,14 @@ export function ProductDetailPage() {
   }
 
   const saved = wishlist.includes(product.id);
+  const whatsappUrl = buildWhatsappUrl(product);
 
   return (
     <div className="pb-24 md:grid md:gap-6 md:pb-0 lg:grid-cols-[1fr_380px]">
       <section className="space-y-4 md:space-y-5">
         <div className="relative overflow-hidden bg-slate-100 shadow-soft dark:bg-slate-900 md:rounded-[32px]">
           <img src={product.imageUrls[0]} alt={product.title} className="aspect-[1.02] w-full object-cover md:aspect-[4/3]" />
-          <div className="absolute bottom-4 left-4 rounded-full bg-white/92 px-3 py-2 text-xs font-extrabold text-slate-900 shadow-sm backdrop-blur md:hidden">
+          <div className="absolute bottom-4 left-4 rounded-full bg-white/92 px-3 py-2 text-xs font-normal text-slate-900 shadow-sm backdrop-blur md:hidden">
             {product.condition}
           </div>
           <button
@@ -55,17 +59,25 @@ export function ProductDetailPage() {
               {product.location}
             </span>
           </div>
-          <h1 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-4xl">{product.title}</h1>
-          <p className="mt-2 text-3xl font-black text-[#5b2ee5]">{formatPrice(product.price)}</p>
+          <h1 className="inter-copy mt-3 text-2xl font-semibold sm:text-4xl">{product.title}</h1>
+          <p className="inter-copy mt-2 text-3xl font-semibold text-[#5b2ee5]">{formatPrice(product.price)}</p>
           <p className="mt-5 text-base leading-8 text-slate-600 dark:text-slate-300">{product.description}</p>
         </div>
       </section>
 
       <aside className="mx-4 mt-4 space-y-4 md:mx-0 md:mt-0 md:space-y-5 lg:sticky lg:top-24 lg:self-start">
         <div className="panel hidden p-6 md:block">
-          <p className="text-4xl font-extrabold tracking-tight">{formatPrice(product.price)}</p>
+          <p className="inter-copy text-4xl font-semibold">{formatPrice(product.price)}</p>
           <div className="mt-5 grid gap-3">
-            <Button icon={<MessageCircle className="size-4" />}>Message seller</Button>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"
+            >
+              <MessageCircle className="size-4" />
+              WhatsApp seller
+            </a>
             <Button variant="secondary" onClick={() => toggleWishlist(product.id)} icon={<Heart className={saved ? 'size-4 fill-rose-500 text-rose-500' : 'size-4'} />}>
               {saved ? 'Saved' : 'Save listing'}
             </Button>
@@ -92,7 +104,15 @@ export function ProductDetailPage() {
 
       <div className="fixed inset-x-0 bottom-[84px] z-30 mx-auto max-w-[480px] px-4 md:hidden">
         <div className="grid grid-cols-[1fr_1fr_52px] gap-2 rounded-[24px] bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur dark:bg-slate-950/95">
-          <Button icon={<MessageCircle className="size-4" />}>Chat</Button>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition active:scale-[0.98]"
+          >
+            <MessageCircle className="size-4" />
+            WhatsApp
+          </a>
           <Button variant="secondary" onClick={() => toggleWishlist(product.id)} icon={<Heart className={saved ? 'size-4 fill-rose-500 text-rose-500' : 'size-4'} />}>
             Save
           </Button>
@@ -102,3 +122,10 @@ export function ProductDetailPage() {
     </div>
   );
 }
+
+function buildWhatsappUrl(product: Product) {
+  const message = `Hi ${product.sellerName}, I am interested in "${product.title}" listed for ${formatPrice(product.price)} in ${product.location}. Is it still available?`;
+  return `https://wa.me/${fallbackWhatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
+

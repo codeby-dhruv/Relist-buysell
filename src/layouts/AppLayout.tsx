@@ -21,8 +21,8 @@ export function AppLayout() {
     <div className="min-h-screen bg-white text-[#0f0f12] dark:bg-black dark:text-white md:bg-[#fafafa] md:dark:bg-[#0f0f12]">
       <header className="sticky top-0 z-40 hidden border-b border-white/70 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/75 md:block">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3 font-extrabold tracking-tight">
-            <span className="grid size-10 place-items-center rounded-2xl bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-sm">R</span>
+          <Link to="/" className="flex items-center gap-3 font-extrabold">
+            <span className="grid size-10 place-items-center rounded-2xl bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 text-white shadow-sm">R</span>
             <span className="hidden text-xl sm:block">Relist</span>
           </Link>
           <div className="hidden flex-1 justify-center px-8 md:flex">
@@ -78,7 +78,7 @@ export function AppLayout() {
           {navItems.slice(0, 2).map((item) => (
             <MobileNavItem key={item.to} {...item} />
           ))}
-          <Link to="/sell" className="mx-auto -mt-7 grid size-16 place-items-center rounded-full border-[7px] border-white bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-[0_14px_30px_rgba(214,41,118,0.28)] dark:border-black">
+          <Link to="/sell" className="mx-auto -mt-7 grid size-16 place-items-center rounded-full border-[7px] border-white bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 text-white shadow-[0_14px_30px_rgba(14,165,233,0.24)] dark:border-black">
             <Plus className="size-6" />
           </Link>
           {navItems.slice(2).map((item) => (
@@ -109,12 +109,12 @@ function MobileTopBar() {
           <ChevronLeft className="size-5" />
         </button>
         <div className="text-center">
-          <p className="text-[11px] font-semibold text-slate-400">Relist super app</p>
+          <p className="text-[11px] font-normal text-slate-400">Relist super app</p>
           <h1 className="text-lg font-extrabold leading-tight">{title}</h1>
         </div>
         <button className="relative grid size-11 place-items-center rounded-full bg-slate-100 dark:bg-white/10">
           <Bell className="size-5" />
-          <span className="absolute right-2 top-2 size-2 rounded-full bg-[#d62976]" />
+          <span className="absolute right-2 top-2 size-2 rounded-full bg-sky-500" />
         </button>
       </div>
     </header>
@@ -126,7 +126,7 @@ function MobileNavItem({ to, label, icon: Icon }: (typeof navItems)[number]) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        cn('grid place-items-center gap-1 rounded-2xl py-2 text-[11px] font-semibold text-slate-400', isActive && 'text-[#0f0f12] dark:text-white')
+        cn('grid place-items-center gap-1 rounded-2xl py-2 text-[11px] font-normal text-slate-400', isActive && 'text-[#0f0f12] dark:text-white')
       }
     >
       <Icon className="size-5" />
@@ -134,3 +134,5 @@ function MobileNavItem({ to, label, icon: Icon }: (typeof navItems)[number]) {
     </NavLink>
   );
 }
+
+

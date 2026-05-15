@@ -63,25 +63,25 @@ export function ProductForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5 rounded-[30px] bg-white p-4 shadow-sm dark:bg-black md:border md:border-slate-200 md:p-6 md:dark:border-white/10 lg:grid-cols-[1fr_360px]">
       <div className="space-y-5">
         <div>
-          <label className="text-sm font-bold">Title</label>
+          <label className="inter-copy text-sm font-medium">Title</label>
           <input className="field mt-2" placeholder="Apple Studio Display, walnut desk, road bike..." {...register('title')} />
           <ErrorText message={errors.title?.message} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-bold">Price</label>
+            <label className="inter-copy text-sm font-medium">Price</label>
             <input className="field mt-2" type="number" placeholder="450" {...register('price')} />
             <ErrorText message={errors.price?.message} />
           </div>
           <div>
-            <label className="text-sm font-bold">Location</label>
+            <label className="inter-copy text-sm font-medium">Location</label>
             <input className="field mt-2" placeholder="Brooklyn, NY" {...register('location')} />
             <ErrorText message={errors.location?.message} />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-bold">Category</label>
+            <label className="inter-copy text-sm font-medium">Category</label>
             <select className="field mt-2" {...register('category')}>
               {categories.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -91,7 +91,7 @@ export function ProductForm() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-bold">Condition</label>
+            <label className="inter-copy text-sm font-medium">Condition</label>
             <select className="field mt-2" {...register('condition')}>
               {conditions.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -102,7 +102,7 @@ export function ProductForm() {
           </div>
         </div>
         <div>
-          <label className="text-sm font-bold">Description</label>
+          <label className="inter-copy text-sm font-medium">Description</label>
           <textarea className="field mt-2 min-h-36 resize-none" placeholder="Tell buyers what matters: condition, included accessories, pickup options." {...register('description')} />
           <ErrorText message={errors.description?.message} />
         </div>
@@ -111,17 +111,17 @@ export function ProductForm() {
         <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <p className="text-sm font-black">{t.uploadPhotos}</p>
-              <p className="text-xs font-semibold text-slate-500">{t.maxPhotos}</p>
+              <p className="inter-copy text-sm font-medium">{t.uploadPhotos}</p>
+              <p className="text-xs font-normal text-slate-500">{t.maxPhotos}</p>
             </div>
-            <span className="rounded-full bg-black px-3 py-1 text-xs font-black text-white dark:bg-white dark:text-black">{progress}</span>
+            <span className="rounded-full bg-black px-3 py-1 text-xs font-normal text-white dark:bg-white dark:text-black">{progress}</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
             {images.map((image, index) => (
               <div key={image.url} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-slate-200">
                 <img src={image.url} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
-                {index === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-black">Cover</span>}
+                {index === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-normal">Cover</span>}
                 <button type="button" onClick={() => removeImage(image.url)} className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-black/65 text-white">
                   <X className="size-4" />
                 </button>
@@ -133,7 +133,7 @@ export function ProductForm() {
                 <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleImages(event.target.files)} />
                 <span>
                   <ImagePlus className="mx-auto size-8 text-slate-400" />
-                  <span className="mt-2 block text-xs font-black">Add</span>
+                  <span className="mt-2 block text-xs font-normal">Add</span>
                 </span>
               </label>
             )}
@@ -141,15 +141,15 @@ export function ProductForm() {
         </div>
 
         <div className="rounded-[24px] bg-slate-50 p-4 dark:bg-white/5">
-          <p className="text-sm font-black">Performance tips</p>
-          <ul className="mt-2 space-y-2 text-xs font-semibold leading-5 text-slate-500">
+          <p className="inter-copy text-sm font-medium">Performance tips</p>
+          <ul className="mt-2 space-y-2 text-xs font-normal leading-5 text-slate-500">
             <li>Use bright 4:5 photos for better feed reach.</li>
             <li>Keep title short and searchable.</li>
             <li>Upload compressed images for old mobile devices.</li>
           </ul>
         </div>
 
-        <Button className="w-full bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5]" disabled={isSubmitting} icon={<Sparkles className="size-4" />}>
+        <Button className="w-full bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600" disabled={isSubmitting} icon={<Sparkles className="size-4" />}>
           {t.publish}
         </Button>
       </aside>
@@ -161,3 +161,5 @@ function ErrorText({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="mt-2 text-sm font-semibold text-rose-600">{message}</p>;
 }
+
+
