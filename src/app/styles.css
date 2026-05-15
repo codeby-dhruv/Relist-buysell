@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background: #f8fafc;
+  color: #0f172a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark {
+  color-scheme: dark;
+  background: #07111f;
+  color: #f8fafc;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/50 bg-white/75 shadow-soft backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/70;
+  }
+
+  .panel {
+    @apply rounded-[24px] border border-slate-200/70 bg-white shadow-soft dark:border-white/10 dark:bg-slate-950;
+  }
+
+  .field {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 dark:border-white/10 dark:bg-slate-900 dark:text-white;
+  }
+
+  .insta-ring {
+    @apply bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] p-[2px];
+  }
+}
