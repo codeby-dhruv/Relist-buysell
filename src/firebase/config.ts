@@ -4,17 +4,15 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAmhDZao3rILuuYanN29zNXjgstuLg0VS0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "relist-buy-sell.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "relist-buy-sell",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "relist-buy-sell.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "324450332634",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:324450332634:web:17e5286d43200fd5dc9ae3"
 };
 
-export const firebaseEnabled = Object.values(firebaseConfig).every(
-  (value) => typeof value === 'string' && value.length > 0 && !value.startsWith('your_')
-);
+export const firebaseEnabled = true;
 
 export const firebaseApp = firebaseEnabled ? (getApps().length ? getApps()[0] : initializeApp(firebaseConfig)) : null;
 export const auth: Auth | null = firebaseApp ? getAuth(firebaseApp) : null;

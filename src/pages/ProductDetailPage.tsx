@@ -3,6 +3,7 @@ import { Bookmark, MapPin, MessageCircle, Share2, ShieldCheck, Star } from 'luci
 import { useState } from 'react';
 import { Button } from '@components/ui/Button';
 import { Skeleton } from '@components/ui/Skeleton';
+import { copy } from '@constants/languages';
 import { useProduct } from '@hooks/useProducts';
 import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
@@ -15,6 +16,8 @@ export function ProductDetailPage() {
   const { data: product, isLoading } = useProduct(id);
   const wishlist = useAppStore((state) => state.wishlist);
   const toggleWishlist = useAppStore((state) => state.toggleWishlist);
+  const language = useAppStore((state) => state.language);
+  const t = copy[language];
   const [expanded, setExpanded] = useState(false);
 
   if (isLoading) return <Skeleton className="h-[620px] rounded-[32px]" />;
@@ -22,9 +25,9 @@ export function ProductDetailPage() {
   if (!product) {
     return (
       <div className="panel p-10 text-center">
-        <h1 className="inter-copy text-2xl font-semibold">Listing unavailable</h1>
+        <h1 className="inter-copy text-2xl font-semibold">{t.listingUnavailable}</h1>
         <Link to="/" className="mt-4 inline-block text-sm font-bold text-[#5b2ee5]">
-          Back to marketplace
+          {t.backToMarketplace}
         </Link>
       </div>
     );
@@ -80,7 +83,7 @@ export function ProductDetailPage() {
             {description}
             {isLongDescription && (
               <button className="ml-1 font-medium text-slate-950 dark:text-white" onClick={() => setExpanded((value) => !value)}>
-                {expanded ? 'show less' : 'read more'}
+                {expanded ? t.showLess : t.readMore}
               </button>
             )}
           </p>
@@ -98,13 +101,13 @@ export function ProductDetailPage() {
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"
             >
               <MessageCircle className="size-4" />
-              WhatsApp seller
+              {t.whatsappSeller}
             </a>
             <Button variant="secondary" onClick={() => toggleWishlist(product.id)} icon={<Bookmark className={saved ? 'size-4 fill-current' : 'size-4'} />}>
-              {saved ? 'Saved' : 'Save listing'}
+              {saved ? t.saved : t.saveListing}
             </Button>
             <Button variant="secondary" onClick={() => void shareProduct(product)} icon={<Share2 className="size-4" />}>
-              Share
+              {t.share}
             </Button>
           </div>
         </div>
@@ -116,13 +119,13 @@ export function ProductDetailPage() {
               <p className="inter-copy font-medium">{product.sellerName}</p>
               <div className="mt-1 flex items-center gap-1 text-sm font-semibold text-slate-500">
                 <Star className="size-4 fill-amber-400 text-amber-400" />
-                4.9 seller rating
+                4.9 {t.sellerRating}
               </div>
             </div>
           </div>
           <div className="mt-5 flex items-center gap-2 rounded-2xl bg-[#5b2ee5]/10 p-4 text-sm font-semibold text-[#5b2ee5] dark:text-violet-300">
             <ShieldCheck className="size-5" />
-            Identity and payment signals verified
+            {t.identitySignalsVerified}
           </div>
         </div>
       </aside>
@@ -139,7 +142,7 @@ export function ProductDetailPage() {
             WhatsApp
           </a>
           <Button variant="secondary" onClick={() => toggleWishlist(product.id)} icon={<Bookmark className={saved ? 'size-4 fill-current' : 'size-4'} />}>
-            Save
+            {t.saved}
           </Button>
           <Button variant="secondary" className="px-0" aria-label="Share" onClick={() => void shareProduct(product)} icon={<Share2 className="size-4" />} />
         </div>

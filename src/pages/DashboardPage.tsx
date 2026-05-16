@@ -2,21 +2,22 @@ import { Bookmark, Edit3, Grid3X3, Mail, MapPin, Phone, Plus, Settings, ShieldCh
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@components/ui/Button';
-import { languages } from '@constants/languages';
+import { copy, languages } from '@constants/languages';
 import { demoUser, products } from '@services/mockData';
 import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
-
-const sellerStats = [
-  { value: '38', label: 'Active listings' },
-  { value: '2.8k', label: 'Profile views' },
-  { value: '4.9', label: 'Rating' }
-];
 
 export function DashboardPage() {
   const listedProducts = products.slice(0, 6);
   const language = useAppStore((state) => state.language);
   const setLanguage = useAppStore((state) => state.setLanguage);
+  const t = copy[language];
+
+  const sellerStats = [
+    { value: '38', label: t.activeListings },
+    { value: '2.8k', label: t.profileViews },
+    { value: '4.9', label: t.rating }
+  ];
 
   return (
     <div className="space-y-5 px-4 pt-4 md:px-0 md:pt-0">
@@ -28,7 +29,7 @@ export function DashboardPage() {
                 <img src={demoUser.avatarUrl} alt={demoUser.displayName} className="size-20 rounded-[20px] object-cover ring-4 ring-white/90" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-normal text-white/70">Seller profile</p>
+                <p className="text-xs font-normal text-white/70">{t.sellerProfile}</p>
                 <h1 className="inter-copy mt-1 truncate text-2xl font-semibold">{demoUser.displayName}</h1>
                 <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-white/80">
                   <MapPin className="size-4" /> {demoUser.location}
@@ -36,7 +37,7 @@ export function DashboardPage() {
               </div>
             </div>
             <Button variant="secondary" className="shrink-0 bg-white/15 text-white hover:bg-white/20" icon={<Settings className="size-4" />}>
-              Settings
+              {t.settings}
             </Button>
           </div>
         </div>
@@ -50,21 +51,21 @@ export function DashboardPage() {
 
           <div className="mt-5 space-y-3">
             <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Verified seller. Premium gadgets, furniture, vehicles and local deals. Fast replies, clean handovers.
+              {t.verifiedSeller}
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-normal text-emerald-700 dark:text-emerald-300">KYC verified</span>
-              <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-normal text-sky-700 dark:text-sky-300">Top seller</span>
+              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-normal text-emerald-700 dark:text-emerald-300">{t.kycVerified}</span>
+              <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-normal text-sky-700 dark:text-sky-300">{t.topSeller}</span>
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-2">
             <Button variant="secondary" icon={<Edit3 className="size-4" />}>
-              Edit profile
+              {t.editProfile}
             </Button>
             <Link to="/sell">
               <Button className="w-full bg-slate-950 text-white dark:bg-white dark:text-slate-950" icon={<Plus className="size-4" />}>
-                Add listing
+                {t.addListing}
               </Button>
             </Link>
           </div>
@@ -72,13 +73,13 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-3 rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-950 md:grid-cols-2">
-        <InfoLine icon={<Mail className="size-4" />} label="Email" value={demoUser.email} />
-        <InfoLine icon={<Phone className="size-4" />} label="Phone" value="+91 98765 43210" />
-        <InfoLine icon={<ShieldCheck className="size-4" />} label="Trust" value="Identity verified" />
+        <InfoLine icon={<Mail className="size-4" />} label={t.email} value={demoUser.email} />
+        <InfoLine icon={<Phone className="size-4" />} label={t.phone} value="+91 98765 43210" />
+        <InfoLine icon={<ShieldCheck className="size-4" />} label={t.trust} value={t.identityVerified} />
         <label className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
           <span className="grid size-9 place-items-center rounded-xl bg-white text-sm font-bold dark:bg-slate-950">A</span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[11px] font-normal text-slate-400">Language</span>
+            <span className="block text-[11px] font-normal text-slate-400">{t.language}</span>
             <select value={language} onChange={(event) => setLanguage(event.target.value as typeof language)} className="w-full bg-transparent text-sm font-bold outline-none">
               {languages.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -93,11 +94,11 @@ export function DashboardPage() {
       <section className="rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 dark:border-white/10">
           <div>
-            <p className="text-xs font-normal text-slate-400">Inventory</p>
-            <h2 className="inter-copy mt-1 text-lg font-semibold">Your listings</h2>
+            <p className="text-xs font-normal text-slate-400">{t.inventory}</p>
+            <h2 className="inter-copy mt-1 text-lg font-semibold">{t.yourListings}</h2>
           </div>
           <button className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-normal dark:bg-white/10">
-            <Grid3X3 className="size-4" /> Listings
+            <Grid3X3 className="size-4" /> {t.listings}
           </button>
         </div>
 
@@ -115,7 +116,7 @@ export function DashboardPage() {
                 <div className="mt-2 flex flex-wrap gap-2 text-xs font-normal text-slate-500">
                   <span>{product.category}</span>
                   <span>{product.location}</span>
-                  <span>{product.saves} saves</span>
+                  <span>{product.saves} {t.saves}</span>
                 </div>
               </div>
               <div className="col-span-2 grid grid-cols-3 gap-2 md:col-span-1 md:w-36">

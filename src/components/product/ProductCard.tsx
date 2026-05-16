@@ -19,22 +19,46 @@ export function ProductCard({ product }: { product: Product }) {
       className="group overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-slate-950"
     >
       <Link to={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] overflow-hidden bg-slate-100">
-          <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
-            {product.imageUrls.map((imageUrl, index) => (
-              <img
-                key={imageUrl}
-                src={imageUrl}
-                alt={`${product.title} ${index + 1}`}
-                className="h-full w-full shrink-0 snap-center object-cover transition duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
-            ))}
-          </div>
-          {product.imageUrls.length > 1 && (
-            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-full bg-black/35 px-2 py-1 backdrop-blur">
-              {product.imageUrls.map((imageUrl) => (
-                <span key={imageUrl} className="size-1.5 rounded-full bg-white/85" />
+        <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 flex flex-col gap-1">
+          {product.imageUrls.length >= 3 ? (
+            <>
+              <div className="h-2/3 w-full overflow-hidden">
+                <img
+                  src={product.imageUrls[0]}
+                  alt={`${product.title} 1`}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex h-1/3 w-full gap-1">
+                <div className="h-full w-1/2 overflow-hidden">
+                  <img
+                    src={product.imageUrls[1]}
+                    alt={`${product.title} 2`}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="h-full w-1/2 overflow-hidden">
+                  <img
+                    src={product.imageUrls[2]}
+                    alt={`${product.title} 3`}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
+              {product.imageUrls.map((imageUrl, index) => (
+                <img
+                  key={imageUrl}
+                  src={imageUrl}
+                  alt={`${product.title} ${index + 1}`}
+                  className="h-full w-full shrink-0 snap-center object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
               ))}
             </div>
           )}

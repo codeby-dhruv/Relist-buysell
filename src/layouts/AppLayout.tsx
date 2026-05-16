@@ -2,20 +2,83 @@ import { Outlet, NavLink, Link, useLocation, useNavigate } from 'react-router-do
 import { Bell, ChevronLeft, Grid3X3, Heart, Home, Moon, Plus, Search, Sun, User } from 'lucide-react';
 import { Button } from '@components/ui/Button';
 import { useAppStore } from '@store/useAppStore';
+import { copy } from '@constants/languages';
 import { cn } from '@utils/cn';
+import { useAuthStore } from '@store/useAuthStore';
+import { subscribeToAuth } from '@services/authService';
+import { useEffect } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase/config';
 
 const navItems = [
-  { to: '/', label: 'Home', icon: Home },
-  { to: '/categories', label: 'Categories', icon: Grid3X3 },
-  { to: '/wishlist', label: 'Saved', icon: Heart },
-  { to: '/dashboard', label: 'Profile', icon: User }
-];
+  { to: '/', key: 'home', icon: Home },
+  { to: '/categories', key: 'categories', icon: Grid3X3 },
+  { to: '/wishlist', key: 'saved', icon: Heart },
+  { to: '/profile', key: 'profile', icon: User }
+] as const;
 
 export function AppLayout() {
   const theme = useAppStore((state) => state.theme);
   const setTheme = useAppStore((state) => state.setTheme);
+  const language = useAppStore((state) => state.language);
+  const t = copy[language];
   const location = useLocation();
-  const showCompactMobileTopBar = location.pathname !== '/';
+  const navigate = useNavigate();
+  const isAuthPage = location.pathname === '/auth';
+  const showCompactMobileTopBar = !isAuthPage && location.pathname !== '/';
+  const { user, setUser, setProfile, loading, setLoading } = useAuthStore();
+
+  useEffect(() => {
+    // Safety timeout — if Firebase takes too long, stop loading after 5s
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
+    const unsubscribe = subscribeToAuth(async (u) => {
+      clearTimeout(timeout);
+      setUser(u);
+      if (u && db) {
+        try {
+          const docRef = doc(db, 'users', u.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setProfile(docSnap.data() as any);
+          } else {
+            setProfile(null);
+          }
+        } catch (err) {
+          console.error('Error fetching profile globally', err);
+        }
+      } else {
+        setProfile(null);
+      }
+      setLoading(false);
+    });
+    return () => { unsubscribe(); clearTimeout(timeout); };
+  }, [setUser, setProfile, setLoading]);
+
+  // Only protect sell & profile pages — home/categories/wishlist are public
+  const protectedPaths = ['/sell', '/profile'];
+  const isProtectedPage = protectedPaths.some((p) => location.pathname.startsWith(p));
+
+  useEffect(() => {
+    if (!loading && !user && isProtectedPage) {
+      navigate('/auth', { replace: true });
+    } else if (!loading && user && isAuthPage) {
+      navigate('/', { replace: true });
+    }
+  }, [user, loading, isAuthPage, isProtectedPage, navigate]);
+
+  // Don't block the whole UI on loading \u2014 only protected pages wait
+  if (loading && isProtectedPage) {
+    return <div className="grid h-screen place-items-center"><div className="size-10 animate-spin rounded-full border-4 border-slate-200 border-t-teal-500"></div></div>;
+  }
+
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] p-4 py-12 dark:bg-[#0f0f12] md:p-8">
+        <Outlet />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#0f0f12] dark:bg-black dark:text-white md:bg-[#fafafa] md:dark:bg-[#0f0f12]">
@@ -28,7 +91,7 @@ export function AppLayout() {
           <div className="hidden flex-1 justify-center px-8 md:flex">
             <div className="flex w-full max-w-xl items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/10">
               <Search className="size-4" />
-              Search products, sellers, and neighborhoods
+              {t.searchMain}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -40,10 +103,14 @@ export function AppLayout() {
               icon={theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
             />
             <Link to="/sell" className="hidden md:block">
-              <Button icon={<Plus className="size-4" />}>Sell item</Button>
+              <Button icon={<Plus className="size-4" />}>{t.sellItem}</Button>
             </Link>
-            <Link to="/auth" className="grid size-11 place-items-center rounded-full border border-slate-200 bg-white dark:border-white/10 dark:bg-white/10">
-              <User className="size-5" />
+            <Link to={user ? "/profile" : "/auth"} className="grid size-11 place-items-center rounded-full border border-slate-200 bg-white dark:border-white/10 dark:bg-white/10">
+              {user && user.photoURL ? (
+                <img src={user.photoURL} alt="Profile" className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <User className="size-5" />
+              )}
             </Link>
           </div>
         </div>
@@ -63,7 +130,7 @@ export function AppLayout() {
                 }
               >
                 <item.icon className="size-5" />
-                {item.label}
+                {t[item.key as keyof typeof t]}
               </NavLink>
             ))}
           </nav>
@@ -76,13 +143,13 @@ export function AppLayout() {
       <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[480px] border-t border-slate-200/80 bg-white/96 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 backdrop-blur-2xl dark:border-white/10 dark:bg-black/96 md:hidden">
         <div className="grid grid-cols-5 items-center gap-1">
           {navItems.slice(0, 2).map((item) => (
-            <MobileNavItem key={item.to} {...item} />
+            <MobileNavItem key={item.to} to={item.to} icon={item.icon} label={t[item.key as keyof typeof t]} />
           ))}
           <Link to="/sell" className="mx-auto -mt-7 grid size-16 place-items-center rounded-full border-[7px] border-white bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 text-white shadow-[0_14px_30px_rgba(14,165,233,0.24)] dark:border-black">
             <Plus className="size-6" />
           </Link>
           {navItems.slice(2).map((item) => (
-            <MobileNavItem key={item.to} {...item} />
+            <MobileNavItem key={item.to} to={item.to} icon={item.icon} label={t[item.key as keyof typeof t]} />
           ))}
         </div>
       </nav>
@@ -91,16 +158,19 @@ export function AppLayout() {
 }
 
 function MobileTopBar() {
+  const language = useAppStore((state) => state.language);
+  const t = copy[language];
   const location = useLocation();
   const navigate = useNavigate();
   const titles: Record<string, string> = {
-    '/wishlist': 'Explore',
-    '/categories': 'Categories',
-    '/dashboard': 'Profile',
-    '/sell': 'Sell Item',
-    '/auth': 'Account'
+    '/wishlist': t.explore,
+    '/categories': t.categories,
+    '/profile': t.profile,
+    '/dashboard': t.profile,
+    '/sell': t.sellItem,
+    '/auth': t.account
   };
-  const title = location.pathname.startsWith('/products') ? 'Product Details' : (titles[location.pathname] ?? 'Relist');
+  const title = location.pathname.startsWith('/products') ? t.productDetails : (titles[location.pathname] ?? 'Relist');
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/96 px-4 pb-3 pt-3 text-[#0f0f12] backdrop-blur-2xl dark:border-white/10 dark:bg-black/96 dark:text-white md:hidden">
@@ -121,7 +191,7 @@ function MobileTopBar() {
   );
 }
 
-function MobileNavItem({ to, label, icon: Icon }: (typeof navItems)[number]) {
+function MobileNavItem({ to, label, icon: Icon }: Omit<(typeof navItems)[number], 'key'> & { label: string }) {
   return (
     <NavLink
       to={to}
@@ -134,5 +204,3 @@ function MobileNavItem({ to, label, icon: Icon }: (typeof navItems)[number]) {
     </NavLink>
   );
 }
-
-

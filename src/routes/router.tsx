@@ -12,6 +12,7 @@ const WishlistPage = lazy(() => import('@pages/WishlistPage').then((module) => (
 const CategoriesPage = lazy(() => import('@pages/CategoriesPage').then((module) => ({ default: module.CategoriesPage })));
 const DashboardPage = lazy(() => import('@pages/DashboardPage').then((module) => ({ default: module.DashboardPage })));
 const AuthPage = lazy(() => import('@pages/AuthPage').then((module) => ({ default: module.AuthPage })));
+const ProfilePage = lazy(() => import('@pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const NotFoundPage = lazy(() => import('@pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
 
 function PageLoader({ children }: { children: ReactNode }) {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: 'categories', element: <PageLoader><CategoriesPage /></PageLoader> },
       { path: 'dashboard', element: <PageLoader><DashboardPage /></PageLoader> },
       { path: 'auth', element: <PageLoader><AuthPage /></PageLoader> },
+      { path: 'profile', element: <PageLoader><ProfilePage /></PageLoader> },
       { path: '*', element: <PageLoader><NotFoundPage /></PageLoader> }
     ]
   }

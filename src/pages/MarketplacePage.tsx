@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ProductGrid } from '@components/product/ProductGrid';
 import { ProductFilters } from '@features/products/ProductFilters';
 import { categories } from '@constants/categories';
+import { copy } from '@constants/languages';
 import { useProducts } from '@hooks/useProducts';
 import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
@@ -19,6 +20,9 @@ export function MarketplacePage() {
   const { data, isLoading } = useProducts({ search, category, sort });
   const banners = ['/banner%201.png', '/banner2.png'];
   const suggestions = buildSuggestions(search, data ?? []);
+
+  const language = useAppStore((state) => state.language);
+  const t = copy[language];
 
   useEffect(() => {
     const selected = params.get('category') as ProductCategory | null;
@@ -58,7 +62,7 @@ export function MarketplacePage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="min-w-0 flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-slate-400"
-                placeholder="Search category or product"
+                placeholder={t.searchCategoryOrProduct}
               />
               <button aria-label="Close search" onClick={() => setSearchOpen(false)}>
                 <X className="size-4 text-slate-400" />
@@ -107,12 +111,12 @@ export function MarketplacePage() {
         <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-950">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="inter-copy text-sm font-medium text-sky-600">National super app</p>
-              <h1 className="inter-copy mt-2 text-4xl font-semibold">Marketplace feed for everything local.</h1>
-              <p className="mt-3 max-w-2xl text-slate-500">Products, vehicles, property, rentals, services, jobs, and local professionals in one clean discovery experience.</p>
+              <p className="inter-copy text-sm font-medium text-sky-600">{t.nationalSuperApp}</p>
+              <h1 className="inter-copy mt-2 text-4xl font-semibold">{t.marketplaceFeedDesc}</h1>
+              <p className="mt-3 max-w-2xl text-slate-500">{t.marketplaceSubDesc}</p>
             </div>
             <Link to="/categories" className="inter-copy rounded-2xl bg-[#0f0f12] px-5 py-3 text-sm font-medium text-white dark:bg-white dark:text-black">
-              View all categories
+              {t.viewAllCategories}
             </Link>
           </div>
         </section>
@@ -136,6 +140,8 @@ export function MarketplacePage() {
 function MobileListing({ product }: { product: Product }) {
   const wishlist = useAppStore((state) => state.wishlist);
   const toggleWishlist = useAppStore((state) => state.toggleWishlist);
+  const language = useAppStore((state) => state.language);
+  const t = copy[language];
   const saved = wishlist.includes(product.id);
   const [expanded, setExpanded] = useState(false);
   const isLong = product.description.length > 92;
@@ -159,17 +165,22 @@ function MobileListing({ product }: { product: Product }) {
       </div>
 
       <Link to={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 dark:bg-white/5">
-          <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
-            {product.imageUrls.map((imageUrl, index) => (
-              <img key={imageUrl} src={imageUrl} alt={`${product.title} ${index + 1}`} className="h-full w-full shrink-0 snap-center object-cover" loading="lazy" />
-            ))}
-          </div>
-          {product.imageUrls.length > 1 && (
-            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-full bg-black/35 px-2 py-1 backdrop-blur">
-              {product.imageUrls.map((imageUrl) => (
-                <span key={imageUrl} className="size-1.5 rounded-full bg-white/85" />
+        <div>
+          {product.imageUrls.length >= 3 ? (
+            <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-white/5">
+              {product.imageUrls.slice(0, 3).map((img, index) => (
+                <div key={img} className="relative aspect-[4/5] overflow-hidden">
+                  <img src={img} alt={`${product.title} ${index + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                </div>
               ))}
+            </div>
+          ) : (
+            <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 dark:bg-white/5">
+              <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
+                {product.imageUrls.map((imageUrl, index) => (
+                  <img key={imageUrl} src={imageUrl} alt={`${product.title} ${index + 1}`} className="h-full w-full shrink-0 snap-center object-cover" loading="lazy" />
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -186,7 +197,7 @@ function MobileListing({ product }: { product: Product }) {
             </button>
           </div>
         </div>
-        <p className="inter-copy text-sm font-medium">{product.saves.toLocaleString()} saves</p>
+        <p className="inter-copy text-sm font-medium">{product.saves.toLocaleString()} {t.saves}</p>
         <p className="text-sm">
           <Link to={`/products/${product.id}`} className="inter-copy font-medium">
             {product.title}
@@ -197,7 +208,7 @@ function MobileListing({ product }: { product: Product }) {
           {description}
           {isLong && (
             <button className="ml-1 font-medium text-slate-900 dark:text-white" onClick={() => setExpanded((value) => !value)}>
-              {expanded ? 'show less' : 'read more'}
+              {expanded ? t.showLess : t.readMore}
             </button>
           )}
         </p>

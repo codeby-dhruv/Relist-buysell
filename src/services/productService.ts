@@ -67,6 +67,18 @@ export async function createProduct(product: Omit<Product, 'id' | 'createdAt' | 
   });
 }
 
+export async function getProductsByUser(userId: string): Promise<Product[]> {
+  if (!db) return [];
+  try {
+    const snapshot = await getDocs(
+      query(collection(db, collectionName), where('sellerId', '==', userId), orderBy('createdAt', 'desc'), limit(50))
+    );
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
+  } catch {
+    return [];
+  }
+}
+
 export async function updateProduct(id: string, product: Partial<Product>) {
   if (!db) throw new Error('Firebase is not configured. Add VITE_FIREBASE_* values to enable writes.');
   return updateDoc(doc(db, collectionName, id), product);
