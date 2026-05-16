@@ -67,7 +67,7 @@ export function ProductForm() {
         imageUrls: base64Images,
         sellerId: user.uid,
         sellerName: profile?.displayName || user.displayName || 'Unknown',
-        sellerAvatar: profile?.profilePic || user.photoURL || null
+        sellerAvatar: profile?.profilePic || user.photoURL || ""
       });
 
       setPublishStep('Published!');
