@@ -70,29 +70,7 @@ export function CategoriesPage() {
   }, [search]);
 
   return (
-    <div className="space-y-5 px-4 pt-4 pb-8 md:px-0 md:pt-0">
-      {/* Header Card */}
-      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
-        <div className="grid gap-5 p-5 md:grid-cols-[1fr_auto] md:items-end md:p-6">
-          <div>
-            <p className="text-xs font-normal text-slate-500">{t.categoryDirectory}</p>
-            <h1 className="mt-2 text-3xl font-semibold md:text-5xl">{t.allCategories}</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 md:text-base">
-              {t.categoriesDesc}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:w-72">
-            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
-              <p className="text-2xl font-semibold">{CATEGORIES.length}</p>
-              <p className="mt-1 text-xs font-normal text-slate-500">{t.sections}</p>
-            </div>
-            <Link to="/sell" className="group rounded-2xl bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 p-4 text-white">
-              <span className="block text-sm font-medium">{t.listAnItem}</span>
-              <ArrowRight className="mt-3 size-5 transition group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+    <div className="space-y-4 px-4 pt-4 pb-8 md:px-0 md:pt-0">
 
       {/* Search */}
       <label className="sticky top-[73px] z-20 flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-black/95 md:top-20">

@@ -1,9 +1,9 @@
-import { Heart, MapPin, ShieldCheck, Trash2 } from 'lucide-react';
+import { Heart, MapPin, ShieldCheck, Trash2, Loader2, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { EmptyState } from '@components/ui/EmptyState';
 import { copy } from '@constants/languages';
-import { products } from '@services/mockData';
+import { getProducts } from '@services/productService';
 import { useAppStore } from '@store/useAppStore';
+import { useQuery } from '@tanstack/react-query';
 import { formatPrice } from '@utils/format';
 import type { Product } from '@/types/models';
 
@@ -11,7 +11,14 @@ export function WishlistPage() {
   const wishlist = useAppStore((state) => state.wishlist);
   const language = useAppStore((state) => state.language);
   const t = copy[language];
-  const savedProducts = products.filter((product) => wishlist.includes(product.id));
+
+  // Load ALL products then filter by wishlist IDs client-side
+  const { data: allProducts = [], isLoading } = useQuery({
+    queryKey: ['products', {}],
+    queryFn: () => getProducts({}),
+  });
+
+  const savedProducts = allProducts.filter((p) => wishlist.includes(p.id));
 
   return (
     <div className="space-y-5 px-4 pt-4 md:px-0 md:pt-0">
@@ -25,13 +32,17 @@ export function WishlistPage() {
             </p>
           </div>
           <div className="w-fit rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">
-            <p className="inter-copy text-2xl font-semibold">{savedProducts.length}</p>
+            <p className="inter-copy text-2xl font-semibold">{isLoading ? '—' : savedProducts.length}</p>
             <p className="text-xs font-normal text-slate-500">{t.savedItems}</p>
           </div>
         </div>
       </section>
 
-      {savedProducts.length ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="size-8 animate-spin text-teal-500" />
+        </div>
+      ) : savedProducts.length ? (
         <section className="rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950">
           <div className="divide-y divide-slate-100 dark:divide-white/10">
             {savedProducts.map((product) => (
@@ -40,7 +51,18 @@ export function WishlistPage() {
           </div>
         </section>
       ) : (
-        <EmptyState icon={<Heart className="size-6" />} title={t.noSavedListings} body={t.noSavedDesc} />
+        <div className="flex flex-col items-center gap-4 py-16 text-center">
+          <div className="flex size-16 items-center justify-center rounded-full bg-slate-100 dark:bg-white/5">
+            <Package className="size-7 text-slate-400" />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-800 dark:text-white">{t.noSavedListings}</p>
+            <p className="mt-1 text-sm text-slate-500">{t.noSavedDesc}</p>
+          </div>
+          <Link to="/" className="rounded-2xl bg-teal-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-teal-600 transition">
+            Browse Products
+          </Link>
+        </div>
       )}
     </div>
   );

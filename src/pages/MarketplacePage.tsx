@@ -10,6 +10,26 @@ import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
 import type { Product, ProductCategory } from '@/types/models';
 
+// Top categories shown in home-feed strip (first 16 + "All" button)
+const MOBILE_CATS = [
+  { name: "All Advertisements", image: "https://media.piplanapane.com/uploads/category/68257063c18a8.png" },
+  { name: "Tractor",            image: "https://media.piplanapane.com/uploads/category/684d3a33db2c1.png" },
+  { name: "Cow",                image: "https://media.piplanapane.com/uploads/category/696489f7a3b8b.png" },
+  { name: "Buffalo",            image: "https://media.piplanapane.com/uploads/category/68256672ab52c.png" },
+  { name: "Two Wheeler",        image: "https://media.piplanapane.com/uploads/category/684d39f387818.png" },
+  { name: "Four Wheelers/Car",  image: "https://media.piplanapane.com/uploads/category/684d3a6e3fbcf.png" },
+  { name: "Real Estate",        image: "https://media.piplanapane.com/uploads/category/684d3c8cc16be.png" },
+  { name: "Mobile",             image: "https://media.piplanapane.com/uploads/category/684d3a90a65f4.png" },
+  { name: "Job",                image: "https://media.piplanapane.com/uploads/category/68256e25b2fde.png" },
+  { name: "Farm Products",      image: "https://media.piplanapane.com/uploads/category/69648b5e4a5b6.png" },
+  { name: "Seeds and Fertilizers", image: "https://media.piplanapane.com/uploads/category/68256f0f32a47.png" },
+  { name: "Nursery Plants",     image: "https://media.piplanapane.com/uploads/category/682566236d056.png" },
+  { name: "Rickshaw",           image: "https://media.piplanapane.com/uploads/category/687b66fccbc01.png" },
+  { name: "Sheep and Goats",    image: "https://media.piplanapane.com/uploads/category/69648bec98cc6.png" },
+  { name: "Scrap",              image: "https://media.piplanapane.com/uploads/category/682569a699b7d.png" },
+  { name: "Other",              image: "https://media.piplanapane.com/uploads/category/68256e78abc08.jpg" },
+];
+
 export function MarketplacePage() {
   const [params] = useSearchParams();
   const [search, setSearch] = useState('');
@@ -93,6 +113,22 @@ export function MarketplacePage() {
         </div>
       </section>
 
+      {/* Mobile: Categories strip below banner */}
+      <section className="border-b border-slate-100 bg-white px-4 pb-4 dark:border-white/10 dark:bg-black md:hidden">
+        <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {MOBILE_CATS.map((cat) => (
+            <a
+              key={cat.name}
+              href={`/?category=${cat.name.toLowerCase().replace(/[\s\/\-]+/g, '-')}`}
+              className="flex shrink-0 flex-col items-center gap-1.5 rounded-2xl border border-slate-100 bg-slate-50 p-2.5 dark:border-white/10 dark:bg-white/5"
+            >
+              <img src={cat.image} alt={cat.name} loading="lazy" className="h-9 w-9 object-contain" onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+              <span className="block w-14 text-center text-[10px] font-semibold leading-tight text-slate-700 line-clamp-2 dark:text-slate-300">{cat.name}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <section className="md:hidden">
         {isLoading ? (
           <div className="p-4">
@@ -126,6 +162,22 @@ export function MarketplacePage() {
           <div className="mt-3 flex justify-center gap-1">
             {banners.map((banner, index) => (
               <span key={banner} className={`h-1.5 rounded-full transition-all ${index === bannerIndex ? 'w-6 bg-slate-900 dark:bg-white' : 'w-1.5 bg-slate-300 dark:bg-white/30'}`} />
+            ))}
+          </div>
+        </section>
+
+        {/* Desktop: Categories strip below banner */}
+        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-950">
+          <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {MOBILE_CATS.map((cat) => (
+              <a
+                key={cat.name}
+                href={`/?category=${cat.name.toLowerCase().replace(/[\s\/\-]+/g, '-')}`}
+                className="flex shrink-0 flex-col items-center gap-1.5 rounded-2xl border border-slate-100 bg-slate-50 p-2.5 transition hover:border-slate-300 dark:border-white/10 dark:bg-white/5"
+              >
+                <img src={cat.image} alt={cat.name} loading="lazy" className="h-10 w-10 object-contain" onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+                <span className="block w-16 text-center text-[10px] font-semibold leading-tight text-slate-700 line-clamp-2 dark:text-slate-300">{cat.name}</span>
+              </a>
             ))}
           </div>
         </section>

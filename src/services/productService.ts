@@ -30,14 +30,19 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
   if (!db) return applyLocalFilters(fallbackProducts, filters);
 
   try {
-    const constraints: QueryConstraint[] = [orderBy(filters.sort === 'popular' ? 'views' : 'createdAt', 'desc'), limit(24)];
+    const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc'), limit(50)];
     if (filters.category && filters.category !== 'all') {
       constraints.unshift(where('category', '==', filters.category));
     }
 
     const snapshot = await getDocs(query(collection(db, collectionName), ...constraints));
     const remote = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Product);
-    return applyLocalFilters(remote.length ? remote : fallbackProducts, filters);
+
+    // Only fall back to mock data when no category filter is active (home feed)
+    if (!remote.length && (!filters.category || filters.category === 'all')) {
+      return applyLocalFilters(fallbackProducts, filters);
+    }
+    return applyLocalFilters(remote, filters);
   } catch {
     return applyLocalFilters(fallbackProducts, filters);
   }
