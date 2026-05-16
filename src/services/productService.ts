@@ -71,9 +71,10 @@ export async function getProductsByUser(userId: string): Promise<Product[]> {
   if (!db) return [];
   try {
     const snapshot = await getDocs(
-      query(collection(db, collectionName), where('sellerId', '==', userId), orderBy('createdAt', 'desc'), limit(50))
+      query(collection(db, collectionName), where('sellerId', '==', userId), limit(50))
     );
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
+    const products = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
+    return products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch {
     return [];
   }

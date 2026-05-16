@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, Mail, Phone, User as UserIcon, LogOut, Trash2, Plus, Package } from 'lucide-react';
+import { Camera, Mail, Phone, User as UserIcon, LogOut, Trash2, Plus, Package, Edit2, Check, X, Moon, Sun, Globe } from 'lucide-react';
 import { useAuthStore } from '@store/useAuthStore';
 import { updateProfileData, logout } from '@services/authService';
 import { compressImage, fileToBase64 } from '@utils/imageUtils';
@@ -11,13 +11,18 @@ import type { Product } from '@/types/models';
 
 export function ProfilePage() {
   const { user, profile, setProfile } = useAuthStore();
-  const language = useAppStore((state) => state.language);
+  const { theme, setTheme, language, setLanguage } = useAppStore();
   const t = copy[language];
 
   const [uploading, setUploading] = useState(false);
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editMobile, setEditMobile] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -35,7 +40,7 @@ export function ProfilePage() {
       const compressed = await compressImage(file);
       const base64 = await fileToBase64(compressed);
       await updateProfileData(user.uid, { profilePic: base64 });
-      setProfile(profile ? { ...profile, profilePic: base64 } : null);
+      setProfile({ ...(profile || {}), profilePic: base64 } as any);
     } catch (err) {
       console.error('Failed to upload image', err);
     } finally {
@@ -43,31 +48,55 @@ export function ProfilePage() {
     }
   }
 
-  // Let Firebase onAuthStateChanged in AppLayout handle state updates.
-  // We just call signOut — the AppLayout will redirect to /auth automatically.
   async function handleLogout() {
     try {
       await logout();
-      // AppLayout's subscribeToAuth will fire with null user
-      // and the redirect effect will navigate to /auth
     } catch (err) {
       console.error('Logout failed', err);
       alert('Logout failed. Please try again.');
     }
   }
 
-  async function handleDelete(productId: string) {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
-    setDeletingId(productId);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  function confirmDelete(productId: string) {
+    setDeleteConfirmId(productId);
+  }
+
+  async function handleDelete() {
+    if (!deleteConfirmId) return;
+    setDeletingId(deleteConfirmId);
     try {
-      await deleteProduct(productId);
-      setMyProducts((prev) => prev.filter((p) => p.id !== productId));
+      await deleteProduct(deleteConfirmId);
+      setMyProducts((prev) => prev.filter((p) => p.id !== deleteConfirmId));
+      setDeleteConfirmId(null);
     } catch (err) {
       console.error('Failed to delete', err);
       alert('Failed to delete listing.');
     } finally {
       setDeletingId(null);
     }
+  }
+
+  async function handleSaveProfile() {
+    if (!user) return;
+    setSavingProfile(true);
+    try {
+      await updateProfileData(user.uid, { displayName: editName, mobile: editMobile });
+      setProfile({ ...(profile || {}), displayName: editName, mobile: editMobile } as any);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to update profile', err);
+      alert('Failed to update profile.');
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  function startEditing() {
+    setEditName(profile?.displayName || user?.displayName || '');
+    setEditMobile(profile?.mobile || '');
+    setIsEditing(true);
   }
 
   if (!user) {
@@ -84,7 +113,17 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4 pb-10">
       {/* Profile Card */}
-      <div className="rounded-[32px] bg-white p-6 shadow-sm dark:bg-slate-950 md:p-8">
+      <div className="rounded-[32px] bg-white p-6 shadow-sm dark:bg-slate-950 md:p-8 relative">
+        {!isEditing ? (
+          <button onClick={startEditing} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition dark:bg-white/5 dark:hover:bg-white/10 dark:text-slate-400 dark:hover:text-white">
+            <Edit2 className="size-4" />
+          </button>
+        ) : (
+          <button onClick={() => setIsEditing(false)} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition dark:bg-white/5 dark:hover:bg-white/10 dark:text-slate-400 dark:hover:text-white">
+            <X className="size-4" />
+          </button>
+        )}
+
         <div className="flex flex-col items-center">
           <div className="relative mb-5">
             <div className="flex size-28 items-center justify-center overflow-hidden rounded-full border-4 border-slate-100 bg-slate-200 dark:border-slate-800 dark:bg-slate-800">
@@ -111,21 +150,75 @@ export function ProfilePage() {
           <p className="text-sm text-slate-500">{t.memberSince || 'Member'}</p>
         </div>
 
-        {/* Info rows */}
+        {/* Info rows or Edit Form */}
         <div className="mt-6 space-y-3">
-          <InfoRow icon={<UserIcon className="size-4" />} color="indigo" label={t.fullName || 'Full Name'} value={profile?.displayName || user.displayName || '—'} />
-          <InfoRow icon={<Mail className="size-4" />} color="teal" label={t.emailAddress || 'Email'} value={profile?.email || user.email || '—'} />
-          <InfoRow icon={<Phone className="size-4" />} color="sky" label={t.mobileNumber || 'Mobile'} value={profile?.mobile || 'Not set'} />
+          {isEditing ? (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+              <div>
+                <label className="text-xs font-semibold text-slate-500 ml-1">Full Name</label>
+                <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-teal-500 dark:border-white/10 dark:bg-white/5" placeholder="Enter your full name" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 ml-1">Mobile Number</label>
+                <input value={editMobile} onChange={(e) => setEditMobile(e.target.value)} type="tel" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-teal-500 dark:border-white/10 dark:bg-white/5" placeholder="Enter your mobile number" />
+              </div>
+              <button onClick={handleSaveProfile} disabled={savingProfile} className="w-full flex justify-center items-center gap-2 rounded-2xl bg-teal-500 py-3 text-sm font-bold text-white transition hover:bg-teal-600 disabled:opacity-50">
+                {savingProfile ? <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Check className="size-4" />}
+                Save Profile
+              </button>
+            </div>
+          ) : (
+            <>
+              <InfoRow icon={<UserIcon className="size-4" />} color="indigo" label={t.fullName || 'Full Name'} value={profile?.displayName || user.displayName || '—'} />
+              <InfoRow icon={<Mail className="size-4" />} color="teal" label={t.emailAddress || 'Email'} value={profile?.email || user.email || '—'} />
+              <InfoRow icon={<Phone className="size-4" />} color="sky" label={t.mobileNumber || 'Mobile'} value={profile?.mobile || 'Not set'} />
+            </>
+          )}
         </div>
+      </div>
 
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 py-3 text-sm font-bold text-rose-600 transition hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
-        >
-          <LogOut className="size-4" />
-          Sign Out
-        </button>
+      {/* Settings Section */}
+      <div className="rounded-[32px] bg-white p-6 shadow-sm dark:bg-slate-950 md:p-8">
+        <h2 className="text-base font-bold mb-4">Settings</h2>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                {theme === 'dark' ? <Moon className="size-4" /> : <Sun className="size-4" />}
+              </div>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Dark Mode</p>
+            </div>
+            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className={`relative h-6 w-11 rounded-full transition-colors ${theme === 'dark' ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+              <span className={`absolute top-1 size-4 rounded-full bg-white transition-all ${theme === 'dark' ? 'left-6' : 'left-1'}`} />
+            </button>
+          </div>
+          
+          <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                <Globe className="size-4" />
+              </div>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Language</p>
+            </div>
+            <select value={language} onChange={(e) => setLanguage(e.target.value as any)} className="bg-transparent text-sm font-medium text-teal-600 outline-none dark:text-teal-400">
+              <option value="en">English</option>
+              <option value="hi">हिंदी</option>
+              <option value="gu">ગુજરાતી</option>
+            </select>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center justify-between rounded-2xl bg-rose-50 p-3 text-sm font-bold text-rose-600 transition hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
+                <LogOut className="size-4" />
+              </div>
+              Sign Out
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* My Listings */}
@@ -169,7 +262,7 @@ export function ProfilePage() {
                   <p className="text-xs text-slate-500 capitalize">{product.condition} · {product.category}</p>
                 </div>
                 <button
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => confirmDelete(product.id)}
                   disabled={deletingId === product.id}
                   className="flex size-9 shrink-0 items-center justify-center rounded-full text-rose-500 transition hover:bg-rose-50 disabled:opacity-40 dark:hover:bg-rose-500/10"
                 >
@@ -183,6 +276,37 @@ export function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="w-full max-w-sm rounded-[24px] bg-white p-6 shadow-xl dark:bg-slate-900 animate-in zoom-in-95">
+            <div className="flex flex-col items-center text-center">
+              <div className="flex size-14 items-center justify-center rounded-full bg-rose-100 text-rose-500 dark:bg-rose-500/20 mb-4">
+                <Trash2 className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Delete Listing?</h3>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Are you sure you want to permanently delete this listing? This action cannot be undone.
+              </p>
+              <div className="mt-6 flex w-full gap-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 rounded-xl bg-rose-500 py-3 text-sm font-bold text-white transition hover:bg-rose-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -203,3 +327,4 @@ function InfoRow({ icon, color, label, value }: { icon: React.ReactNode; color: 
     </div>
   );
 }
+

@@ -36,6 +36,7 @@ export interface UserProfile {
   email: string;
   avatarUrl?: string;
   location?: string;
+  savedProducts?: string[];
   rating: number;
   totalSales: number;
   createdAt: string;

@@ -92,7 +92,12 @@ export function ProductCard({ product }: { product: Product }) {
             icon={<Share2 className="size-5" />}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-white/5">
+          <div className="flex items-center gap-2">
+            <img src={product.sellerAvatar || product.imageUrls[0]} alt="" className="size-6 rounded-full object-cover" />
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-300 line-clamp-1">{product.sellerName}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400">
           <span className="inline-flex items-center gap-1">
             <MapPin className="size-3.5" />
             {product.location}
@@ -101,6 +106,7 @@ export function ProductCard({ product }: { product: Product }) {
             <Star className="size-3.5 fill-amber-400 text-amber-400" />
             {product.saves} saves
           </span>
+        </div>
         </div>
       </div>
     </motion.article>

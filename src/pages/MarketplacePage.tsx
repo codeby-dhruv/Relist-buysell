@@ -151,7 +151,7 @@ function MobileListing({ product }: { product: Product }) {
     <article className="bg-white dark:bg-black">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
-          <img src={product.sellerAvatar ?? product.imageUrls[0]} alt="" className="size-10 rounded-full object-cover" />
+          <img src={product.sellerAvatar || product.imageUrls[0]} alt="" className="size-10 rounded-full object-cover" />
           <div className="min-w-0">
             <p className="inter-copy truncate text-sm font-medium">{product.sellerName}</p>
             <p className="flex items-center gap-1 truncate text-xs text-slate-500">
