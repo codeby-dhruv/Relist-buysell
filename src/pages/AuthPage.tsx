@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent, InputHTMLAttributes, ReactNode } from 'react';
-import { Mail, Lock, User, Phone, Eye, EyeOff, ShoppingBag, Star, Shield, Zap } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff, Star, Shield, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { copy } from '@constants/languages';
 import { loginWithEmail, loginWithGoogle, registerWithEmail } from '@services/authService';
@@ -82,9 +82,7 @@ export function AuthPage() {
         {/* Logo */}
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-sky-500 shadow-lg">
-              <ShoppingBag className="size-5 text-white" />
-            </div>
+            <img src="/Tlogo.png" alt="Relist" className="h-10 w-10 object-contain" />
             <span className="text-xl font-extrabold text-white tracking-tight">Relist</span>
           </div>
         </div>
@@ -140,9 +138,7 @@ export function AuthPage() {
           
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-sky-500">
-              <ShoppingBag className="size-5 text-white" />
-            </div>
+            <img src="/Tlogo.png" alt="Relist" className="h-10 w-10 object-contain" />
             <span className="text-xl font-extrabold text-white">Relist</span>
           </div>
 

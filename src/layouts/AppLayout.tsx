@@ -69,12 +69,23 @@ export function AppLayout() {
 
   // Don't block the whole UI on loading \u2014 only protected pages wait
   if (loading && isProtectedPage) {
-    return <div className="grid h-screen place-items-center"><div className="size-10 animate-spin rounded-full border-4 border-slate-200 border-t-teal-500"></div></div>;
+    return (
+      <div className="grid h-screen place-items-center bg-white dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/Tlogo.png"
+            alt="Relist"
+            className="h-20 w-20 object-contain animate-pulse"
+          />
+          <div className="size-5 animate-spin rounded-full border-2 border-slate-200 border-t-teal-500" />
+        </div>
+      </div>
+    );
   }
 
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-[#fafafa] p-4 py-12 dark:bg-[#0f0f12] md:p-8">
+      <div className="min-h-screen bg-slate-950">
         <Outlet />
       </div>
     );
@@ -84,8 +95,8 @@ export function AppLayout() {
     <div className="min-h-screen bg-white text-[#0f0f12] dark:bg-black dark:text-white md:bg-[#fafafa] md:dark:bg-[#0f0f12]">
       <header className="sticky top-0 z-40 hidden border-b border-white/70 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/75 md:block">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3 font-extrabold">
-            <span className="grid size-10 place-items-center rounded-2xl bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-600 text-white shadow-sm">R</span>
+          <Link to="/" className="flex items-center gap-2.5 font-extrabold">
+            <img src="/Tlogo.png" alt="Relist" className="h-9 w-9 object-contain" />
             <span className="hidden text-xl sm:block">Relist</span>
           </Link>
           <div className="hidden flex-1 justify-center px-8 md:flex">
