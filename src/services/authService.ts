@@ -49,7 +49,7 @@ export async function logout() {
   return signOut(auth);
 }
 
-export async function updateProfileData(uid: string, data: Partial<{ displayName: string; mobile: string; profilePic: string }>) {
+export async function updateProfileData(uid: string, data: Partial<{ displayName: string; mobile: string; profilePic: string; savedProducts: string[] }>) {
   if (!db) return Promise.resolve();
   return setDoc(doc(db, 'users', uid), data, { merge: true });
 }
