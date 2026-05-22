@@ -27,14 +27,17 @@ export const useAppStore = create<AppState>()(
           const wishlist = state.wishlist.includes(productId)
             ? state.wishlist.filter((item) => item !== productId)
             : [...state.wishlist, productId];
-          
-          // Sync to Firestore
-          const { user } = require('./useAuthStore').useAuthStore.getState();
-          if (user) {
-            import('@/services/authService').then(({ updateProfileData }) => {
-              updateProfileData(user.uid, { savedProducts: wishlist }).catch(console.error);
-            });
-          }
+
+          // Sync to Firestore (best-effort). Use dynamic ESM import to avoid CommonJS `require()` in Vite.
+          void import('./useAuthStore')
+            .then(({ useAuthStore }) => {
+              const { user } = useAuthStore.getState();
+              if (!user) return;
+              return import('@/services/authService').then(({ updateProfileData }) =>
+                updateProfileData(user.uid, { savedProducts: wishlist }).catch(console.error)
+              );
+            })
+            .catch(() => undefined);
           return { wishlist };
         });
       },

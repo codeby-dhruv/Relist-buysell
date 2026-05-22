@@ -4,11 +4,24 @@ import { Link } from 'react-router-dom';
 import { Button } from '@components/ui/Button';
 import { copy, languages } from '@constants/languages';
 import { demoUser, products } from '@services/mockData';
+import { getProductsByUser } from '@services/productService';
 import { useAppStore } from '@store/useAppStore';
+import { useAuthStore } from '@store/useAuthStore';
+import { useQuery } from '@tanstack/react-query';
 import { formatPrice } from '@utils/format';
 
 export function DashboardPage() {
-  const listedProducts = products.slice(0, 6);
+  const user = useAuthStore((state) => state.user);
+  const wishlist = useAppStore((state) => state.wishlist);
+  const toggleWishlist = useAppStore((state) => state.toggleWishlist);
+
+  const { data: myProducts = [] } = useQuery({
+    queryKey: ['products-by-user', user?.uid],
+    queryFn: () => getProductsByUser(user!.uid),
+    enabled: Boolean(user?.uid)
+  });
+
+  const listedProducts = (user ? myProducts : products).slice(0, 6);
   const language = useAppStore((state) => state.language);
   const setLanguage = useAppStore((state) => state.setLanguage);
   const t = copy[language];
@@ -103,8 +116,10 @@ export function DashboardPage() {
         </div>
 
         <div className="divide-y divide-slate-100 dark:divide-white/10">
-          {listedProducts.map((product) => (
-            <article key={product.id} className="grid grid-cols-[88px_1fr] gap-3 p-4 md:grid-cols-[104px_1fr_auto] md:items-center">
+          {listedProducts.map((product) => {
+            const saved = wishlist.includes(product.id);
+            return (
+              <article key={product.id} className="grid grid-cols-[88px_1fr] gap-3 p-4 md:grid-cols-[104px_1fr_auto] md:items-center">
               <Link to={`/products/${product.id}`} className="block aspect-square overflow-hidden rounded-2xl bg-slate-100 dark:bg-white/5">
                 <img src={product.imageUrls[0]} alt={product.title} className="h-full w-full object-cover" />
               </Link>
@@ -120,8 +135,12 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="col-span-2 grid grid-cols-3 gap-2 md:col-span-1 md:w-36">
-                <button className="grid h-10 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300" aria-label="Save listing">
-                  <Bookmark className="size-4" />
+                <button
+                  onClick={() => toggleWishlist(product.id)}
+                  className="grid h-10 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"
+                  aria-label={saved ? 'Remove saved listing' : 'Save listing'}
+                >
+                  <Bookmark className={saved ? 'size-4 fill-current' : 'size-4'} />
                 </button>
                 <button className="grid h-10 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300" aria-label="Edit listing">
                   <Edit3 className="size-4" />
@@ -131,7 +150,8 @@ export function DashboardPage() {
                 </button>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
@@ -158,5 +178,3 @@ function InfoLine({ icon, label, value }: { icon: ReactNode; label: string; valu
     </div>
   );
 }
-
-

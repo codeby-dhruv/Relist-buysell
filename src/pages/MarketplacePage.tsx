@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, Bookmark, MapPin, PlusSquare, Search, Share2, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ProductGrid } from '@components/product/ProductGrid';
 import { ProductFilters } from '@features/products/ProductFilters';
 import { categories } from '@constants/categories';
 import { copy } from '@constants/languages';
-import { useProducts } from '@hooks/useProducts';
+import { useDebouncedValue } from '@hooks/useDebouncedValue';
+import { useInfiniteProducts } from '@hooks/useProducts';
 import { useAppStore } from '@store/useAppStore';
 import { formatPrice } from '@utils/format';
 import type { Product, ProductCategory } from '@/types/models';
@@ -13,18 +14,18 @@ import type { Product, ProductCategory } from '@/types/models';
 // Top categories shown in home-feed strip (first 16 + "All" button)
 const MOBILE_CATS = [
   { name: "All Advertisements", image: "https://media.piplanapane.com/uploads/category/68257063c18a8.png" },
-  { name: "Tractor",            image: "https://media.piplanapane.com/uploads/category/684d3a33db2c1.png" },
+  { name: "Tractor",            image: "/Catagoryicon/Tusi-%20Tractor.png" },
   { name: "Cow",                image: "https://media.piplanapane.com/uploads/category/696489f7a3b8b.png" },
   { name: "Buffalo",            image: "https://media.piplanapane.com/uploads/category/68256672ab52c.png" },
-  { name: "Two Wheeler",        image: "https://media.piplanapane.com/uploads/category/684d39f387818.png" },
-  { name: "Four Wheelers/Car",  image: "https://media.piplanapane.com/uploads/category/684d3a6e3fbcf.png" },
+  { name: "Two Wheeler",        image: "/Catagoryicon/Tulsi-Bike.png" },
+  { name: "Four Wheelers/Car",  image: "/Catagoryicon/Tulshi-%20car.png" },
   { name: "Real Estate",        image: "https://media.piplanapane.com/uploads/category/684d3c8cc16be.png" },
   { name: "Mobile",             image: "https://media.piplanapane.com/uploads/category/684d3a90a65f4.png" },
   { name: "Job",                image: "https://media.piplanapane.com/uploads/category/68256e25b2fde.png" },
   { name: "Farm Products",      image: "https://media.piplanapane.com/uploads/category/69648b5e4a5b6.png" },
   { name: "Seeds and Fertilizers", image: "https://media.piplanapane.com/uploads/category/68256f0f32a47.png" },
   { name: "Nursery Plants",     image: "https://media.piplanapane.com/uploads/category/682566236d056.png" },
-  { name: "Rickshaw",           image: "https://media.piplanapane.com/uploads/category/687b66fccbc01.png" },
+  { name: "Rickshaw",           image: "/Catagoryicon/Tulshi-%20Auto%20Riksha.png" },
   { name: "Sheep and Goats",    image: "https://media.piplanapane.com/uploads/category/69648bec98cc6.png" },
   { name: "Scrap",              image: "https://media.piplanapane.com/uploads/category/682569a699b7d.png" },
   { name: "Other",              image: "https://media.piplanapane.com/uploads/category/68256e78abc08.jpg" },
@@ -37,9 +38,43 @@ export function MarketplacePage() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [category, setCategory] = useState<ProductCategory | 'all'>('all');
   const [sort, setSort] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('newest');
-  const { data, isLoading } = useProducts({ search, category, sort });
+  const debouncedSearch = useDebouncedValue(search, 300);
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useInfiniteProducts({ search: debouncedSearch, category, sort });
   const banners = ['/banner%201.png', '/banner2.png'];
-  const suggestions = buildSuggestions(search, data ?? []);
+
+  const products = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
+  const suggestions = buildSuggestions(search, products);
+
+  const loadMoreMobileRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreDesktopRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!hasNextPage) return;
+    const elements = [loadMoreMobileRef.current, loadMoreDesktopRef.current].filter(Boolean) as HTMLDivElement[];
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.some((entry) => entry.isIntersecting && (entry.target as HTMLDivElement).offsetParent !== null);
+        if (!hit) return;
+        if (isFetchingNextPage) return;
+        void fetchNextPage();
+      },
+      { rootMargin: '800px 0px' }
+    );
+
+    for (const element of elements) {
+      // Skip hidden sentinels (e.g. desktop sentinel on mobile layout).
+      if (element.offsetParent === null) continue;
+      observer.observe(element);
+    }
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const language = useAppStore((state) => state.language);
   const t = copy[language];
@@ -136,9 +171,12 @@ export function MarketplacePage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-white/10">
-            {(data ?? []).map((product) => (
+            {products.map((product) => (
               <MobileListing key={product.id} product={product} />
             ))}
+            <div ref={loadMoreMobileRef} className="px-4 py-6 text-center text-xs font-normal text-slate-400">
+              {isFetchingNextPage ? 'Loading more…' : hasNextPage ? 'Loading more…' : 'You’re all caught up.'}
+            </div>
           </div>
         )}
       </section>
@@ -183,7 +221,10 @@ export function MarketplacePage() {
         </section>
 
         <ProductFilters search={search} category={category} sort={sort} onSearch={setSearch} onCategory={setCategory} onSort={setSort} />
-        <ProductGrid products={data} loading={isLoading} />
+        <ProductGrid products={products} loading={isLoading} />
+        <div ref={loadMoreDesktopRef} className="text-center text-xs font-normal text-slate-400">
+          {isFetchingNextPage ? 'Loading more…' : hasNextPage ? 'Loading more…' : 'You’re all caught up.'}
+        </div>
       </div>
     </div>
   );

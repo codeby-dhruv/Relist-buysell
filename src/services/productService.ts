@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  documentId,
   doc,
   getDoc,
   getDocs,
@@ -10,6 +11,7 @@ import {
   type QueryConstraint,
   query,
   serverTimestamp,
+  startAfter,
   updateDoc,
   where
 } from 'firebase/firestore';
@@ -19,6 +21,7 @@ import { products as fallbackProducts } from '@services/mockData';
 import type { Product, ProductCategory } from '@/types/models';
 
 const collectionName = 'products';
+const DEFAULT_PAGE_SIZE = 20;
 
 export interface ProductFilters {
   search?: string;
@@ -36,7 +39,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
     }
 
     const snapshot = await getDocs(query(collection(db, collectionName), ...constraints));
-    const remote = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Product);
+    const remote = snapshot.docs.map((item) => normalizeProduct({ id: item.id, ...item.data() }));
 
     // Only fall back to mock data when no category filter is active (home feed)
     if (!remote.length && (!filters.category || filters.category === 'all')) {
@@ -53,7 +56,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
 
   try {
     const snapshot = await getDoc(doc(db, collectionName, id));
-    if (snapshot.exists()) return { id: snapshot.id, ...snapshot.data() } as Product;
+    if (snapshot.exists()) return normalizeProduct({ id: snapshot.id, ...snapshot.data() });
   } catch {
     return fallbackProducts.find((product) => product.id === id);
   }
@@ -78,7 +81,7 @@ export async function getProductsByUser(userId: string): Promise<Product[]> {
     const snapshot = await getDocs(
       query(collection(db, collectionName), where('sellerId', '==', userId), limit(50))
     );
-    const products = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
+    const products = snapshot.docs.map((d) => normalizeProduct({ id: d.id, ...d.data() }));
     return products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch {
     return [];
@@ -104,6 +107,76 @@ export async function uploadProductImage(userId: string, file: File) {
   return getDownloadURL(result.ref);
 }
 
+export type ProductsCursor = { values: unknown[]; id: string } | null;
+
+export async function getProductsPage(
+  filters: ProductFilters = {},
+  cursor: ProductsCursor = null,
+  pageSize: number = DEFAULT_PAGE_SIZE
+): Promise<{ items: Product[]; nextCursor: ProductsCursor }> {
+  const firestore = db;
+  if (!firestore) {
+    const filtered = applyLocalFilters(fallbackProducts, filters);
+    const startIndex = cursor ? Math.max(filtered.findIndex((p) => p.id === cursor.id) + 1, 0) : 0;
+    const items = filtered.slice(startIndex, startIndex + pageSize);
+    const last = items.at(-1);
+    return { items, nextCursor: last ? { values: [last.createdAt, last.id], id: last.id } : null };
+  }
+
+  try {
+    const sortField = filters.sort === 'popular' ? 'views' : filters.sort?.startsWith('price') ? 'price' : 'createdAt';
+    const sortDirection =
+      filters.sort === 'price-asc' ? 'asc' : filters.sort === 'price-desc' ? 'desc' : 'desc';
+
+    const baseConstraints: QueryConstraint[] = [
+      orderBy(sortField, sortDirection),
+      orderBy(documentId(), 'desc'),
+      limit(pageSize)
+    ];
+    if (filters.category && filters.category !== 'all') {
+      baseConstraints.unshift(where('category', '==', filters.category));
+    }
+
+    const constraints = cursor?.values?.length
+      ? [...baseConstraints.slice(0, -1), startAfter(...cursor.values), baseConstraints.at(-1)!]
+      : baseConstraints;
+
+    const snapshot = await getDocs(query(collection(firestore, collectionName), ...constraints));
+    const items = snapshot.docs.map((d) => normalizeProduct({ id: d.id, ...d.data() }));
+    const lastDoc = snapshot.docs.at(-1);
+    const nextCursor = lastDoc ? { values: [lastDoc.get(sortField), lastDoc.id], id: lastDoc.id } : null;
+
+    return { items: applyLocalFilters(items, filters), nextCursor };
+  } catch {
+    const filtered = applyLocalFilters(fallbackProducts, filters);
+    const startIndex = cursor ? Math.max(filtered.findIndex((p) => p.id === cursor.id) + 1, 0) : 0;
+    const items = filtered.slice(startIndex, startIndex + pageSize);
+    const last = items.at(-1);
+    return { items, nextCursor: last ? { values: [last.createdAt, last.id], id: last.id } : null };
+  }
+}
+
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  const uniqueIds = Array.from(new Set(ids)).filter(Boolean);
+  if (!uniqueIds.length) return [];
+  const firestore = db;
+  if (!firestore) return fallbackProducts.filter((p) => uniqueIds.includes(p.id));
+
+  try {
+    const chunks = chunk(uniqueIds, 10);
+    const snapshots = await Promise.all(
+      chunks.map((batch) =>
+        getDocs(query(collection(firestore, collectionName), where(documentId(), 'in', batch)))
+      )
+    );
+    const items = snapshots.flatMap((snap) => snap.docs.map((d) => normalizeProduct({ id: d.id, ...d.data() })));
+    const byId = new Map(items.map((p) => [p.id, p]));
+    return uniqueIds.map((id) => byId.get(id)).filter(Boolean) as Product[];
+  } catch {
+    return [];
+  }
+}
+
 function applyLocalFilters(items: Product[], filters: ProductFilters) {
   const search = filters.search?.trim().toLowerCase();
   const filtered = items.filter((product) => {
@@ -120,4 +193,38 @@ function applyLocalFilters(items: Product[], filters: ProductFilters) {
     if (filters.sort === 'popular') return b.views - a.views;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+}
+
+function normalizeProduct(input: any): Product {
+  const createdAtRaw = input?.createdAt;
+  const createdAt =
+    createdAtRaw?.toDate?.() instanceof Date
+      ? createdAtRaw.toDate().toISOString()
+      : typeof createdAtRaw === 'string'
+        ? createdAtRaw
+        : new Date().toISOString();
+
+  return {
+    id: String(input.id),
+    title: String(input.title ?? ''),
+    description: String(input.description ?? ''),
+    price: Number(input.price ?? 0),
+    category: input.category as ProductCategory,
+    condition: input.condition,
+    imageUrls: Array.isArray(input.imageUrls) ? input.imageUrls : [],
+    sellerId: String(input.sellerId ?? ''),
+    sellerName: String(input.sellerName ?? ''),
+    sellerAvatar: input.sellerAvatar,
+    location: String(input.location ?? ''),
+    isFeatured: Boolean(input.isFeatured),
+    createdAt,
+    views: Number(input.views ?? 0),
+    saves: Number(input.saves ?? 0)
+  };
+}
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < items.length; i += size) result.push(items.slice(i, i + size));
+  return result;
 }

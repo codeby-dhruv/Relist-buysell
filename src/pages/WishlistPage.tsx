@@ -1,7 +1,7 @@
 import { Heart, MapPin, ShieldCheck, Trash2, Loader2, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { copy } from '@constants/languages';
-import { getProducts } from '@services/productService';
+import { getProductsByIds } from '@services/productService';
 import { useAppStore } from '@store/useAppStore';
 import { useQuery } from '@tanstack/react-query';
 import { formatPrice } from '@utils/format';
@@ -12,13 +12,11 @@ export function WishlistPage() {
   const language = useAppStore((state) => state.language);
   const t = copy[language];
 
-  // Load ALL products then filter by wishlist IDs client-side
-  const { data: allProducts = [], isLoading } = useQuery({
-    queryKey: ['products', {}],
-    queryFn: () => getProducts({}),
+  const { data: savedProducts = [], isLoading } = useQuery({
+    queryKey: ['products-by-ids', wishlist],
+    queryFn: () => getProductsByIds(wishlist),
+    enabled: wishlist.length > 0
   });
-
-  const savedProducts = allProducts.filter((p) => wishlist.includes(p.id));
 
   return (
     <div className="space-y-5 px-4 pt-4 md:px-0 md:pt-0">
