@@ -6,6 +6,56 @@ import { useAppStore } from '@store/useAppStore';
 
 type Lang = 'en' | 'hi' | 'gu';
 
+function fixMojibake(value: string) {
+  // Some legacy strings were saved as UTF-8 bytes interpreted as Windows-1252 (e.g. "à¤•à¥...").
+  // Detect and repair so Hindi/Gujarati render correctly.
+  if (!value.includes('à') && !value.includes('â') && !value.includes('Ã')) return value;
+  try {
+    const cp1252Map = new Map<number, number>([
+      [0x20ac, 0x80],
+      [0x201a, 0x82],
+      [0x0192, 0x83],
+      [0x201e, 0x84],
+      [0x2026, 0x85],
+      [0x2020, 0x86],
+      [0x2021, 0x87],
+      [0x02c6, 0x88],
+      [0x2030, 0x89],
+      [0x0160, 0x8a],
+      [0x2039, 0x8b],
+      [0x0152, 0x8c],
+      [0x017d, 0x8e],
+      [0x2018, 0x91],
+      [0x2019, 0x92],
+      [0x201c, 0x93],
+      [0x201d, 0x94],
+      [0x2022, 0x95],
+      [0x2013, 0x96],
+      [0x2014, 0x97],
+      [0x02dc, 0x98],
+      [0x2122, 0x99],
+      [0x0161, 0x9a],
+      [0x203a, 0x9b],
+      [0x0153, 0x9c],
+      [0x017e, 0x9e],
+      [0x0178, 0x9f]
+    ]);
+
+    const bytes = new Uint8Array(
+      Array.from(value, (ch) => {
+        const code = ch.codePointAt(0) ?? 0;
+        if (code <= 0xff) return code;
+        return cp1252Map.get(code) ?? (code & 0xff);
+      })
+    );
+    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    // If decoding didn't change the string, keep original.
+    return decoded && decoded !== value ? decoded : value;
+  } catch {
+    return value;
+  }
+}
+
 const CATEGORIES: { name: Record<Lang, string>; image: string }[] = [
   { name: { en: "All Advertisements", hi: "à¤¸à¤­à¥€ à¤µà¤¿à¤œà¥à¤žà¤¾à¤ªà¤¨", gu: "àª¤àª®àª¾àª® àªœàª¾àª¹à«‡àª°àª¾àª¤à«‹" }, image: "https://media.piplanapane.com/uploads/category/68257063c18a8.png" },
   { name: { en: "Farm Products", hi: "à¤•à¥ƒà¤·à¤¿ à¤‰à¤¤à¥à¤ªà¤¾à¤¦", gu: "àª–à«‡àª¤ àª‰àª¤à«àªªàª¾àª¦àª¨à«‹" }, image: "https://media.piplanapane.com/uploads/category/69648b5e4a5b6.png" },
@@ -54,6 +104,15 @@ const CATEGORIES: { name: Record<Lang, string>; image: string }[] = [
   { name: { en: "Other", hi: "à¤…à¤¨à¥à¤¯", gu: "àª…àª¨à«àª¯" }, image: "https://media.piplanapane.com/uploads/category/68256e78abc08.jpg" },
 ];
 
+const NORMALIZED_CATEGORIES = CATEGORIES.map((cat) => ({
+  ...cat,
+  name: {
+    en: cat.name.en,
+    hi: fixMojibake(cat.name.hi),
+    gu: fixMojibake(cat.name.gu)
+  }
+}));
+
 export function CategoriesPage() {
   const [search, setSearch] = useState('');
   const language = useAppStore((state) => state.language);
@@ -61,8 +120,8 @@ export function CategoriesPage() {
 
   const filtered = useMemo(() => {
     const value = search.trim().toLowerCase();
-    if (!value) return CATEGORIES;
-    return CATEGORIES.filter((c) =>
+    if (!value) return NORMALIZED_CATEGORIES;
+    return NORMALIZED_CATEGORIES.filter((c) =>
       c.name.en.toLowerCase().includes(value) ||
       c.name.hi.toLowerCase().includes(value) ||
       c.name.gu.toLowerCase().includes(value)
